@@ -1,0 +1,11 @@
+-library gphoto2
+-I /usr/include/i386-linux-gnu
+-I /usr/include/c++/4.6/i686-linux-gnu
+-I /usr/include/linux
+-package com.angryelectron.libgphoto2
+-f
+-v
+-o ./
+-runtime JNA
+-mode Directory 
+/usr/include/gphoto2/gphoto2.h

@@ -1,7 +1,20 @@
 /**
- * GPhoto2Config
- * @author ZIPTREK\abythell
- * (C) 2012 Ziptrek Ecotours
+ * GPhoto2Config Copyright 2012 Andrew Bythell, abythell@ieee.org
+ *
+ * This file is part of libgphoto2-jna.
+ *
+ * libgphoto2-jna is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * libgphoto2-jna is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */ 
 
 package com.angryelectron.gphoto2;
@@ -13,15 +26,20 @@ import com.angryelectron.libgphoto2.Gphoto2Library.CameraWidgetType;
 import com.angryelectron.libgphoto2.Gphoto2Library.GPContext;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Date;
 
 /**
- * Read and write camera settings. Once all the settings have been retrieved from
- * the camera using readConfig(), get or set as many parameters as necessary, then
- * write any updated parameters back to the camera with writeConfig()
+ * Read and write camera settings. Use to set or get multiple parameters at once.
+ * To set or get a single parameter, consider using {@link 
+ * com.angryelectron.gphoto2.GPhoto2#setConfig(java.lang.String, java.lang.String) 
+ * GPhoto2.setConfig()} or {@link 
+ * com.angryelectron.gphoto2.GPhoto2#getConfig(java.lang.String) 
+ * GPhoto2.getConfig()}
  */
 public class GPhoto2Config {
           
@@ -77,11 +95,8 @@ public class GPhoto2Config {
      * @throws IOException If the value cannot be read.
      */
     private String getParameterValue(CameraWidget paramWidget) throws IOException {        
-        
-        PointerByReference pValue = new PointerByReference();
-        int rc = gphoto2.gp_widget_get_value(paramWidget, pValue);
-        validateResult("gp_widget_get_value", rc);
-        
+        int rc;
+                        
         IntBuffer type = IntBuffer.allocate(4);
         rc = gphoto2.gp_widget_get_type(paramWidget, type);
         validateResult("gp_widget_get_type", rc);        
@@ -89,17 +104,29 @@ public class GPhoto2Config {
             case CameraWidgetType.GP_WIDGET_MENU:
             case CameraWidgetType.GP_WIDGET_TEXT:
             case CameraWidgetType.GP_WIDGET_RADIO:                                
+                PointerByReference pValue = new PointerByReference();
+                rc = gphoto2.gp_widget_get_value(paramWidget, pValue.getPointer());
+                validateResult("gp_widget_get_value", rc);
                 return pValue.getValue().getString(0);                
             case CameraWidgetType.GP_WIDGET_RANGE:
-                Float f = pValue.getValue().getFloat(0);
+                FloatByReference fValue = new FloatByReference();
+                rc = gphoto2.gp_widget_get_value(paramWidget, fValue.getPointer());
+                validateResult("gp_widget_get_value", rc);
+                Float f = fValue.getValue();
                 return f.toString();
             case CameraWidgetType.GP_WIDGET_DATE:
-                long l = pValue.getValue().getLong(0) * 1000;
+                IntByReference iValue = new IntByReference();
+                rc = gphoto2.gp_widget_get_value(paramWidget, iValue.getPointer());
+                validateResult("gp_widget_get_value", rc);
+                long l = (long) iValue.getValue() * 1000;
                 Date d = new Date(l);
                 return d.toString();
             case CameraWidgetType.GP_WIDGET_TOGGLE:                             
-                Integer i = pValue.getValue().getInt(0);
-                return i.toString();
+                IntByReference tValue = new IntByReference();
+                rc = gphoto2.gp_widget_get_value(paramWidget, tValue.getPointer());
+                validateResult("gp_widget_get_value", rc);
+                Integer t = tValue.getValue();
+                return t.toString();
             default:
                 throw new UnsupportedOperationException("Unsupported CameraWidgetType");
         }        
@@ -161,20 +188,20 @@ public class GPhoto2Config {
     /**
      * Write the current settings to the camera.  This must be called after any 
      * setParameter() calls to save the new settings to the camera.  It can be
-     * called just once after setting several parameters.
+     * called once after setting multiple parameters.
      * @throws IOException If the settings cannot be written.
      */
     public void writeConfig() throws IOException {
         int rc = gphoto2.gp_camera_set_config(camera, cameraWidget, context);
-        validateResult("gp_camera_set_config", rc);
+        validateResult("gp_camera_set_config", rc);        
     }
-    
+        
     /**
      * Set a new value for a parameter.  A list of parameters can be viewed by
      * running 'gphoto2 --list-config'.  To view a list of valid options for a
      * parameter, run 'gphoto2 --get-config <parameter>'.  Note that "Choices" are
      * numbered, with the value appearing last (ie. when setting "evstep", 
-     * use "1/3" for "Choice: 0 1/3").  Strings are case sensitive.
+     * use "1/3" for "Choice: 0 1/3", not "0").  Strings are case sensitive.
      * @param param The parameter to set.  If getting parameters via --list-config,
      * do not specify the entire path (ie. use 'iso', not '/main/imgsettings/iso').
      * @param value The value to set.
@@ -183,6 +210,7 @@ public class GPhoto2Config {
     public void setParameter(String param, String value) throws IOException {        
         CameraWidget paramWidget = getParameterWidget(param);
         setParameterValue(paramWidget, value);                
+        gphoto2.gp_widget_free(paramWidget);
     }
     
     /**
@@ -194,6 +222,8 @@ public class GPhoto2Config {
      */
     public String getParameter(String param) throws IOException {
         CameraWidget paramWidget = getParameterWidget(param);
-        return getParameterValue(paramWidget);
+        String value = getParameterValue(paramWidget);
+        gphoto2.gp_widget_free(paramWidget);
+        return value;
     }
 }

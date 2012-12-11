@@ -1,8 +1,22 @@
 /**
- * GPhoto2
- * @author ZIPTREK\abythell
- * (C) 2012 Ziptrek Ecotours
- */ 
+ * GPhoto2 
+ * Copyright 2012 Andrew Bythell, abythell@ieee.org
+ *
+ * This file is part of libgphoto2-jna.
+ *
+ * libgphoto2-jna is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * libgphoto2-jna is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package com.angryelectron.gphoto2;
 
@@ -26,6 +40,9 @@ import java.io.IOException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * Simple API for controlling a camera using libgphoto2.
+ */
 public class GPhoto2 {
             
     Gphoto2Library gphoto2;    
@@ -61,7 +78,7 @@ public class GPhoto2 {
     };
         
     /**
-     * Constructor
+     * Constructor.  Loads the native libgphoto2 library and initializes it.
      */
     public GPhoto2() {
         
@@ -73,7 +90,29 @@ public class GPhoto2 {
         context = gphoto2.gp_context_new();
         gphoto2.gp_context_set_error_func(context, errorFunc, null);
         gphoto2.gp_context_set_message_func(context, messageFunc, null);
-    }        
+    }    
+    
+    /**
+     * Open camera connection.  Assumes only 1 camera is connected.  If multiple
+     * cameras are connected only the first detected camera is used. 
+     * @throws IOException If camera cannot be opened.  Includes ligphoto2 error code.
+     */
+    public void open() throws IOException {                
+        int result = gphoto2.gp_camera_init(camera, context);
+        if (result != Gphoto2Library.GP_OK) {
+            gphoto2.gp_camera_unref(camera);
+            camera = null;
+            throw new IOException(error + "(" + result + ")");
+        }            
+    }
+    
+    /**
+     * Close camera connection.
+     */
+    public void close() {                
+        gphoto2.gp_context_unref(context);                                
+        //gphoto2.gp_camera_unref(camera);                
+    }
     
     /**
      * Wait (block) until the specified event is received or a timeout occurs.
@@ -154,8 +193,9 @@ public class GPhoto2 {
     }
     
     /**
-     * Take a picture and save it to disk.
-     * @return a File which points to the saved image.
+     * Take a picture and save it to disk.  Currently images can only
+     * be saved into the current working directory.
+     * @return a File object which points to the saved image.  
      * @throws IOException If image cannot be captured or saved.
      */
     public File captureAndDownload() throws IOException {
@@ -171,25 +211,37 @@ public class GPhoto2 {
     public String capture() throws IOException {
         CameraFilePath path = captureImage();        
         return path.name.toString();
-    }    
+    }            
     
     /**
-     * Open camera connection.  Assumes only 1 camera is connected.  If multiple
-     * cameras are connected only the first detected camera is used. 
-     * @throws IOException If camera cannot be opened.  Includes ligphoto2 error code.
+     * Change a single camera setting.  If updating
+     * several parameters at once, it may be more efficient to use the {@link
+     * com.angryelectron.gphoto2.GPhoto2Config GPhoto2Config} class.
+     * class.
+     * @param param
+     * @param value
+     * @throws IOException 
      */
-    public void open() throws IOException {                
-        int result = gphoto2.gp_camera_init(camera, context);
-        if (result != Gphoto2Library.GP_OK) {
-            gphoto2.gp_camera_unref(camera);
-            camera = null;
-            throw new IOException(error + "(" + result + ")");
-        }            
+    public void setConfig(String param, String value) throws IOException {
+        GPhoto2Config config = new GPhoto2Config(this);
+        config.readConfig();
+        config.setParameter(param, value);
+        config.writeConfig();
     }
     
-    public void close() {        
-        gphoto2.gp_camera_unref(camera);                
-        gphoto2.gp_context_unref(context);
+    /**
+     * Read a single camera setting.  If reading several parameters at once it
+     * may be more efficient to use the {@link com.angryelectron.gphoto2.GPhoto2Config 
+     * GPhoto2Config} class.
+     * @param param Parameter to be read
+     * @return Value of the parameter
+     * @throws IOException if the parameter cannot be read.
+     */
+    public String getConfig(String param) throws IOException {
+        GPhoto2Config config = new GPhoto2Config(this);
+        config.readConfig();
+        String value = config.getParameter(param);        
+        return value;
     }
                 
 }
