@@ -209,8 +209,7 @@ public class GPhoto2Config {
      */
     public void setParameter(String param, String value) throws IOException {        
         CameraWidget paramWidget = getParameterWidget(param);
-        setParameterValue(paramWidget, value);                
-        gphoto2.gp_widget_free(paramWidget);
+        setParameterValue(paramWidget, value);                        
     }
     
     /**
@@ -222,8 +221,6 @@ public class GPhoto2Config {
      */
     public String getParameter(String param) throws IOException {
         CameraWidget paramWidget = getParameterWidget(param);
-        String value = getParameterValue(paramWidget);
-        gphoto2.gp_widget_free(paramWidget);
-        return value;
+        return getParameterValue(paramWidget);        
     }
 }
