@@ -83,7 +83,7 @@ public class GPhoto2 {
     public GPhoto2() {
         
         PointerByReference ref = new PointerByReference();        
-        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so", Gphoto2Library.class);        
+        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so.2", Gphoto2Library.class);        
         gphoto2.gp_camera_new(ref);
         camera = new Camera(ref.getValue());
                 
