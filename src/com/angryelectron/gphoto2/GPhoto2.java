@@ -59,7 +59,7 @@ public class GPhoto2 {
         public void apply(GPContext context, Pointer format, va_list args, Pointer data) {            
             //TODO: parse these errors better            
             error = format.getString(0);            
-            Logger.getLogger(GPhoto2.class.getName()).log(Level.DEBUG, "Error: " + error);
+            //Logger.getLogger(GPhoto2.class.getName()).log(Level.DEBUG, "Error: " + error);
         }        
     };
     
@@ -72,7 +72,7 @@ public class GPhoto2 {
         public void apply(GPContext context, Pointer format, va_list args, Pointer data) {
             //TODO: parse these errors better
             message = format.getString(0);
-            Logger.getLogger(GPhoto2.class.getName()).log(Level.DEBUG, "Message: " + message);
+            //Logger.getLogger(GPhoto2.class.getName()).log(Level.DEBUG, "Message: " + message);
         }
         
     };
