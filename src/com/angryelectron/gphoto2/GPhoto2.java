@@ -168,8 +168,8 @@ public class GPhoto2 {
      * Read a single camera setting.  If reading several parameters at once it
      * may be more efficient to use the {@link com.angryelectron.gphoto2.GPhoto2Config 
      * GPhoto2Config} class.
-     * @param param Parameter to be read
-     * @return Value of the parameter
+     * @param param Parameter to be read.
+     * @return Value of the parameter.  Date values are returned as unix-time strings.
      * @throws IOException if the parameter cannot be read.
      */
     public String getConfig(String param) throws IOException {

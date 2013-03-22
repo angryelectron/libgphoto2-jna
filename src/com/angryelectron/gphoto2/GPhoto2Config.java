@@ -118,9 +118,8 @@ public class GPhoto2Config {
                 IntByReference iValue = new IntByReference();
                 rc = gphoto2.gp_widget_get_value(paramWidget, iValue.getPointer());
                 validateResult("gp_widget_get_value", rc);
-                long l = (long) iValue.getValue() * 1000;
-                Date d = new Date(l);
-                return d.toString();
+                Long l = (long) iValue.getValue() * 1000;                
+                return l.toString();
             case CameraWidgetType.GP_WIDGET_TOGGLE:                             
                 IntByReference tValue = new IntByReference();
                 rc = gphoto2.gp_widget_get_value(paramWidget, tValue.getPointer());
