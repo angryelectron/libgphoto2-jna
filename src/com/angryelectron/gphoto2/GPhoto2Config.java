@@ -31,15 +31,22 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.io.IOException;
 import java.nio.IntBuffer;
-import java.util.Date;
 
 /**
+ * <p>
  * Read and write camera settings. Use to set or get multiple parameters at once.
- * To set or get a single parameter, consider using {@link 
- * com.angryelectron.gphoto2.GPhoto2#setConfig(java.lang.String, java.lang.String) 
- * GPhoto2.setConfig()} or {@link 
- * com.angryelectron.gphoto2.GPhoto2#getConfig(java.lang.String) 
- * GPhoto2.getConfig()}
+ * </p>
+ * <p>
+ * First call {@link #readConfig()}, then call {@link #getParameter(java.lang.String)}
+ * and {@link #setParameter(java.lang.String, java.lang.String)} as many times as needed.  
+ * Finish by calling {@link #writeConfig()} to write updated parameters to the camera.
+ * </p>
+ * <p>
+ * This method is more efficient than using {@link com.angryelectron.gphoto2.GPhoto2#setConfig(java.lang.String, java.lang.String)} 
+ * and {@link com.angryelectron.gphoto2.GPhoto2#getConfig(java.lang.String)} since the
+ * configuration is stored in memory, instead of on the camera.
+ * </p>
+ * 
  */
 public class GPhoto2Config {
           
