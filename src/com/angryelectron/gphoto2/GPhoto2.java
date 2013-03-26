@@ -21,8 +21,11 @@
 package com.angryelectron.gphoto2;
 
 import com.angryelectron.libgphoto2.Camera;
+import com.angryelectron.libgphoto2.CameraAbilities;
 import com.angryelectron.libgphoto2.CameraFilePath;
+import com.angryelectron.libgphoto2.GPPortInfo;
 import com.angryelectron.libgphoto2.Gphoto2Library;
+import com.angryelectron.libgphoto2.Gphoto2Library.CameraAbilitiesList;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraCaptureType;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraEventType;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraFile;
@@ -31,6 +34,7 @@ import com.angryelectron.libgphoto2.Gphoto2Library.CameraList;
 import com.angryelectron.libgphoto2.Gphoto2Library.GPContext;
 import com.angryelectron.libgphoto2.Gphoto2Library.GPContextErrorFunc;
 import com.angryelectron.libgphoto2.Gphoto2Library.GPContextMessageFunc;
+import com.angryelectron.libgphoto2.Gphoto2Library.GPPortInfoList;
 import com.angryelectron.libgphoto2.Gphoto2Library.va_list;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -38,7 +42,11 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.io.File;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Simple API for controlling a camera using libgphoto2.
@@ -80,30 +88,161 @@ public class GPhoto2 {
     /**
      * Constructor.  Loads the native libgphoto2.so.2 library and initializes it.
      */
-    public GPhoto2() {
-        
-        PointerByReference ref = new PointerByReference();        
-        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so.2", Gphoto2Library.class);        
-        gphoto2.gp_camera_new(ref);
-        camera = new Camera(ref.getValue());
-                
+    public GPhoto2() {                
+        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so.2", Gphoto2Library.class);                
         context = gphoto2.gp_context_new();
         gphoto2.gp_context_set_error_func(context, errorFunc, null);
         gphoto2.gp_context_set_message_func(context, messageFunc, null);
-    }    
+    }  
     
     /**
-     * Open camera connection.  If multiple
+     * Enumerate all cameras currently attached. 
+     * @return A List of Camera objects.
+     * @throws IOException 
+     */
+    public List<Camera> listCameras() throws IOException {
+        
+        /*
+         * This is an rather absurd amount of code for what it actually
+         * accomplishes in the end.         
+         */
+        int rc;
+        
+        /*
+         * Create and load an Abilities List.
+         */
+        PointerByReference refAbilitiesList = new PointerByReference();
+        rc = gphoto2.gp_abilities_list_new(refAbilitiesList);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_abilities_list_new failed with code " + rc);
+        }
+        CameraAbilitiesList cameraAbilitiesList = new CameraAbilitiesList(refAbilitiesList.getValue());
+        rc = gphoto2.gp_abilities_list_load(cameraAbilitiesList, context);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_abilities_list_load failed with code " + rc);
+        }
+        
+        /*
+         * Create and load a Ports List.
+         */
+        PointerByReference refPortList = new PointerByReference();
+        rc = gphoto2.gp_port_info_list_new(refPortList);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_port_info_list_new failed with code " + rc);
+        }
+        GPPortInfoList portInfoList = new GPPortInfoList(refPortList.getValue());        
+        rc = gphoto2.gp_port_info_list_load(portInfoList);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_port_info_list_load failed with code " + rc);
+        }
+        
+        /*
+         * Create and load a Cameras List from the Ports and Abilities lists.
+         */
+        PointerByReference refCameraList = new PointerByReference();
+        rc = gphoto2.gp_list_new(refCameraList);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_list_new failed with code " + rc);
+        }
+        CameraList cameraList = new CameraList(refCameraList.getValue());        
+        rc = gphoto2.gp_abilities_list_detect(cameraAbilitiesList, portInfoList, cameraList, context);
+        if (rc != Gphoto2Library.GP_OK) {
+            throw new IOException("gp_abilities_list_detect failed with code " + rc);
+        }
+        
+        /*
+         * Convert the Cameras List into a list of Camera objects
+         */        
+        List<Camera> cList = new ArrayList<Camera>();
+        int size = gphoto2.gp_list_count(cameraList);
+        String[] model = new String[1];
+        String[] port = new String[1];
+        for (int i=0; i<size; i++) {            
+            
+            /*
+             * Get Model
+             */
+            rc = gphoto2.gp_list_get_name(cameraList, i, model);
+            if (rc != Gphoto2Library.GP_OK) {
+                throw new IOException("gp_list_get_name failed with code " + rc);
+            }
+            
+            /*
+             * Get Port
+             */
+            rc = gphoto2.gp_list_get_value(cameraList, i, port);
+            if (rc != Gphoto2Library.GP_OK) {
+                throw new IOException("gp_list_get_value failed with code " + rc);
+            }
+            
+            /*
+             * Create new Camera Object
+             */
+            PointerByReference refCamera = new PointerByReference();
+            gphoto2.gp_camera_new(refCamera);
+            Camera c = new Camera(refCamera.getValue());
+            
+            /*
+             * Get List of Abilities for this Model, then associate the 
+             * Abilities with a Camera
+             */
+            CameraAbilities.ByValue cameraAbilities = new CameraAbilities.ByValue();            
+            int modelIndex = gphoto2.gp_abilities_list_lookup_model(cameraAbilitiesList, model[0]);
+            gphoto2.gp_abilities_list_get_abilities(cameraAbilitiesList, modelIndex, cameraAbilities);
+            gphoto2.gp_camera_set_abilities(c, cameraAbilities);
+            
+            /*
+             * Do the same for the Port
+             */
+            GPPortInfo.ByValue portInfo = new GPPortInfo.ByValue();
+            int portIndex = gphoto2.gp_port_info_list_lookup_path(portInfoList, port[0]);
+            gphoto2.gp_port_info_list_get_info(portInfoList, i, portInfo);
+            gphoto2.gp_camera_set_port_info(camera, portInfo);
+            
+            /*
+             * Finally, add this Camera to the List
+             */
+            cList.add(c);
+        }
+        
+        /*
+         * Whew!  That was a lot of work just to enumerate some cameras!
+         */
+        return cList;
+        
+    }
+    
+    /**
+     * Open camera connection (single camera).  If multiple
      * cameras are connected only the first detected camera is used. 
      * @throws IOException If camera cannot be opened.
      */
     public void open() throws IOException {                
+        PointerByReference ref = new PointerByReference();        
+        gphoto2.gp_camera_new(ref);
+        camera = new Camera(ref.getValue());                        
         int result = gphoto2.gp_camera_init(camera, context);
         if (result != Gphoto2Library.GP_OK) {
             gphoto2.gp_camera_unref(camera);
             camera = null;
             throw new IOException(error + "(" + result + ")");
         }            
+    }
+    
+    /**
+     * Open camera connection (multiple cameras).
+     * @param camera Specify the camera to open by passing one of the
+     * Camera objects obtained from {@link #listCameras()}.
+     * @throws IOException 
+     */
+    public void open(Camera camera) throws IOException {
+        this.camera = camera;
+        int rc = gphoto2.gp_camera_init(camera, context);
+        if (rc != Gphoto2Library.GP_OK) {
+            gphoto2.gp_camera_unref(camera);
+            this.camera = null;
+            throw new IOException("gp_camera_init failed with code " + rc);
+        }        
     }
     
     /**
@@ -137,12 +276,47 @@ public class GPhoto2 {
     }
     
     /**
+     * Don't take a picture, rather wait for camera to capture an image, 
+     * then download.  Call in a loop to create a tethered-shooting mode.
+     * @param timeout Time to wait before aborting (in milliseconds).
+     * @param delete If true, image is deleted from camera after downloading.
+     * @return A File which points to the new image on disk.
+     * @throws IOException on camera error
+     * @throws InterruptedException when timeout is reached.
+     */
+    public File captureTethered(int timeout, boolean delete) throws IOException, InterruptedException {
+        int rc;
+        IntBuffer eventType = IntBuffer.allocate(1);
+        CameraFilePath path = new CameraFilePath();
+        PointerByReference ref = new PointerByReference(path.getPointer());
+                
+        /*
+         * need to loop, othewise GP_EVENT_UNKNOWN is almost always returned
+         */
+        while (true) {
+            rc = gphoto2.gp_camera_wait_for_event(camera, timeout, eventType, ref, context);
+            if (rc != Gphoto2Library.GP_OK) {                
+                throw new IOException("Wait for Event failed with code " + rc);
+            }
+            if (eventType.get(0) == CameraEventType.GP_EVENT_FILE_ADDED) {
+                return saveImage(path, delete);             
+            } else if (eventType.get(0) == CameraEventType.GP_EVENT_TIMEOUT) {
+                throw new InterruptedException("Timeout occured waiting for GP_EVENT_FILE_ADDED.");
+            }
+        }      
+        
+        
+        
+        
+    }
+    
+    /**
      * Fire the shutter, then download all images on the camera.  Useful
      * when using burstmode, which may capture multiple images for one
      * captureImage() call.
-     * @param delete True if *all* images on the camera should be removed after saving.
-     * @return an ArrayList of File objects representing the saved images.
-     * @throws IOException If images cannot be captured or saved.
+     * @param delete If true, *all* images on the camera should be removed after saving.
+     * @return An ArrayList of File objects representing the saved images.
+     * @throws IOException if images cannot be captured or saved.
      */
     public ArrayList<File> burstAndDownload(Boolean delete) throws IOException {                                                              
         return saveImages(captureImage(), delete);
@@ -150,11 +324,10 @@ public class GPhoto2 {
     
     /**
      * Change a single camera setting.  If updating
-     * several parameters at once, it may be more efficient to use the {@link
-     * com.angryelectron.gphoto2.GPhoto2Config GPhoto2Config} class.
-     * class.
-     * @param param
-     * @param value
+     * several parameters at once, it may be more efficient to use {@link
+     * com.angryelectron.gphoto2.GPhoto2Config#getParameter(java.lang.String)}.  
+     * @param param The name of the parameter to set.
+     * @param value The value of the parameter.
      * @throws IOException 
      */
     public void setConfig(String param, String value) throws IOException {
@@ -166,8 +339,7 @@ public class GPhoto2 {
     
     /**
      * Read a single camera setting.  If reading several parameters at once it
-     * may be more efficient to use the {@link com.angryelectron.gphoto2.GPhoto2Config 
-     * GPhoto2Config} class.
+     * may be more efficient to use {@link com.angryelectron.gphoto2.GPhoto2Config#getParameter(java.lang.String)}.
      * @param param Parameter to be read.
      * @return Value of the parameter.  Date values are returned as unix-time strings.
      * @throws IOException if the parameter cannot be read.
@@ -185,7 +357,7 @@ public class GPhoto2 {
      * @param event expected CameraEventType
      * @throws IOException if Timeout occurs or camera is unreachable.
      */
-    private void waitForEvent(int timeout, int event) throws IOException {   
+    private  void waitForEvent(int timeout, int event) throws IOException {   
         IntByReference i = new IntByReference();
         PointerByReference data = new PointerByReference();        
         int rc;
