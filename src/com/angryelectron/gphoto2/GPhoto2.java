@@ -44,9 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Simple API for controlling a camera using libgphoto2.
@@ -153,7 +151,7 @@ public class GPhoto2 {
         /*
          * Convert the Cameras List into a list of Camera objects
          */        
-        List<Camera> cList = new ArrayList<Camera>();
+        List<Camera> cList = new ArrayList<>();
         int size = gphoto2.gp_list_count(cameraList);
         String[] model = new String[1];
         String[] port = new String[1];
@@ -232,7 +230,7 @@ public class GPhoto2 {
     /**
      * Open camera connection (multiple cameras).
      * @param camera Specify the camera to open by passing one of the
-     * Camera objects obtained from {@link #listCameras()}.
+     * Camera objects obtained by {@link #listCameras()}.
      * @throws IOException 
      */
     public void open(Camera camera) throws IOException {
@@ -303,11 +301,7 @@ public class GPhoto2 {
             } else if (eventType.get(0) == CameraEventType.GP_EVENT_TIMEOUT) {
                 throw new InterruptedException("Timeout occured waiting for GP_EVENT_FILE_ADDED.");
             }
-        }      
-        
-        
-        
-        
+        }                      
     }
     
     /**
