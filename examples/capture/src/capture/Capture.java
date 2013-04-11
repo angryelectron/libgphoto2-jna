@@ -1,19 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package capture;
 
 import com.angryelectron.gphoto2.GPhoto2;
 import java.io.IOException;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author ZIPTREK\abythell
- */
 public class Capture {
 
     /**
