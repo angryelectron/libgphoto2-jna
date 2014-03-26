@@ -84,10 +84,10 @@ public class GPhoto2 {
     };
         
     /**
-     * Constructor.  Loads the native libgphoto2.so.2 library and initializes it.
+     * Constructor.  Loads the native libgphoto2.so library and initializes it.
      */
     public GPhoto2() {                
-        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so.2", Gphoto2Library.class);                
+        gphoto2 = (Gphoto2Library) Native.loadLibrary("libgphoto2.so", Gphoto2Library.class);                
         context = gphoto2.gp_context_new();
         gphoto2.gp_context_set_error_func(context, errorFunc, null);
         gphoto2.gp_context_set_message_func(context, messageFunc, null);
