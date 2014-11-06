@@ -131,12 +131,13 @@ public class GPhoto2 {
         /*
          * Create and load an Abilities List.
          */
-        PointerByReference refAbilitiesList = new PointerByReference();
+        CameraAbilitiesList refAbilitiesList[] = new CameraAbilitiesList[1];
         rc = gphoto2.gp_abilities_list_new(refAbilitiesList);        
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_abilities_list_new failed with code " + rc);
         }
-        CameraAbilitiesList cameraAbilitiesList = new CameraAbilitiesList(refAbilitiesList.getValue());
+        
+        CameraAbilitiesList cameraAbilitiesList = refAbilitiesList[0];
         rc = gphoto2.gp_abilities_list_load(cameraAbilitiesList, context);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_abilities_list_load failed with code " + rc);
@@ -145,12 +146,13 @@ public class GPhoto2 {
         /*
          * Create and load a Ports List.
          */
-        PointerByReference refPortList = new PointerByReference();
+        GPPortInfoList refPortList[] = new GPPortInfoList[1];
         rc = gphoto2.gp_port_info_list_new(refPortList);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_port_info_list_new failed with code " + rc);
         }
-        GPPortInfoList portInfoList = new GPPortInfoList(refPortList.getValue());
+        
+        GPPortInfoList portInfoList = refPortList[0];
         rc = gphoto2.gp_port_info_list_load(portInfoList);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_port_info_list_load failed with code " + rc);
@@ -159,12 +161,13 @@ public class GPhoto2 {
         /*
          * Create and load a Cameras List from the Ports and Abilities lists.
          */
-        PointerByReference refCameraList = new PointerByReference();
+        CameraList refCameraList[] = new CameraList[1];
         rc = gphoto2.gp_list_new(refCameraList);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_list_new failed with code " + rc);
         }
-        CameraList cameraList = new CameraList(refCameraList.getValue());
+        
+        CameraList cameraList = refCameraList[0];
         rc = gphoto2.gp_abilities_list_detect(cameraAbilitiesList, portInfoList, cameraList, context);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_abilities_list_detect failed with code " + rc);
@@ -212,10 +215,10 @@ public class GPhoto2 {
             gphoto2.gp_camera_set_abilities(c, cameraAbilities);
 
             /*
-             * Do the same for the Port
+             * Do the same for the Port.  TODO: verify return codes.
              */
             GPPortInfo.ByValue portInfo = new GPPortInfo.ByValue();
-            int portIndex = gphoto2.gp_port_info_list_lookup_path(portInfoList, port[0]);
+            gphoto2.gp_port_info_list_lookup_path(portInfoList, port[0]);
             gphoto2.gp_port_info_list_get_info(portInfoList, i, portInfo);
             gphoto2.gp_camera_set_port_info(camera, portInfo);
 
