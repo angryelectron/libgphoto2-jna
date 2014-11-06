@@ -3,3 +3,4 @@
 	* version 1.2
 	* wait for capture event optional - enable with GPhoto2.waitForCaptureEvent(true)
 	* add unit testing
+        * prevent listCameras() from being called if a camera is open
