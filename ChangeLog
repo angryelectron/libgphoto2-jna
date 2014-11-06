@@ -1,0 +1,5 @@
+2014-11-06  Andrew Bythell  abythell@ieee.org
+
+	* version 1.2
+	* wait for capture event optional - enable with GPhoto2.waitForCaptureEvent(true)
+	* add unit testing
