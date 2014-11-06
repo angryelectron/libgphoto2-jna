@@ -110,9 +110,10 @@ public class GPhoto2 {
     }
 
     /**
-     * Enumerate all cameras currently attached.
+     * Enumerate all cameras currently attached.  Will fail unless all attached
+     * cameras are closed().
      *
-     * @return A List of Camera objects.
+     * @return A list of Camera objects.
      * @throws IOException
      */
     public List<Camera> listCameras() throws IOException {
@@ -122,6 +123,10 @@ public class GPhoto2 {
          * accomplishes in the end.         
          */
         int rc;
+        
+        if (camera != null) {
+           throw new IOException("Can't list cameras while devices are open."); 
+        }
 
         /*
          * Create and load an Abilities List.
@@ -266,8 +271,9 @@ public class GPhoto2 {
      * Close camera connection.
      */
     public void close() {
+        gphoto2.gp_camera_exit(camera, context);
         gphoto2.gp_context_unref(context);
-        //gphoto2.gp_camera_unref(camera);                
+        gphoto2.gp_camera_unref(camera);                
     }
 
     /**
@@ -433,13 +439,13 @@ public class GPhoto2 {
         String name = new String(path.name);
         int rc;
 
-        /* initialize a CameraFile object */
-        PointerByReference ref = new PointerByReference();
+        /* initialize a CameraFile object */        
+        CameraFile ref[] = new CameraFile[1];
         rc = gphoto2.gp_file_new(ref);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_file_new failed with code " + rc);
         }
-        CameraFile cameraFile = new CameraFile(ref.getValue());
+        CameraFile cameraFile = ref[0];
 
         /* point the CameraFile object at the CameraFilePath */
         rc = gphoto2.gp_camera_file_get(camera, folder, name, CameraFileType.GP_FILE_TYPE_NORMAL, cameraFile, context);
@@ -460,7 +466,7 @@ public class GPhoto2 {
                 throw new IOException("gp_camera_file_delete failed with code " + rc);
             }
         }
-        return new File(name);
+        return new File(name.trim());
     }
 
     /**
