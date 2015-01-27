@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-port.h:93</i><br>
@@ -31,11 +34,13 @@ public class GPPortSettingsDisk extends Structure {
 	public byte[] mountpoint = new byte[128];
 	public GPPortSettingsDisk() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"mountpoint"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"mountpoint"});
+  };
+
 	/**
 	 * @param mountpoint < \brief Path in the UNIX fs which corresponds to gphoto2 /<br>
 	 * C type : char[128]
@@ -45,7 +50,6 @@ public class GPPortSettingsDisk extends Structure {
 		if (mountpoint.length != this.mountpoint.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.mountpoint = mountpoint;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPortSettingsDisk implements Structure.ByReference {
 		

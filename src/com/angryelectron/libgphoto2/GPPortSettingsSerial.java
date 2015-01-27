@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-port.h:73</i><br>
@@ -44,11 +47,13 @@ public class GPPortSettingsSerial extends Structure {
 	public int stopbits;
 	public GPPortSettingsSerial() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"port", "speed", "bits", "parity", "stopbits"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"port", "speed", "bits", "parity", "stopbits"});
+  };
+
 	/**
 	 * @param port < The portname (/dev/ttyX)<br>
 	 * C type : char[128]<br>
@@ -69,7 +74,6 @@ public class GPPortSettingsSerial extends Structure {
 		this.bits = bits;
 		this.parity = parity;
 		this.stopbits = stopbits;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPortSettingsSerial implements Structure.ByReference {
 		

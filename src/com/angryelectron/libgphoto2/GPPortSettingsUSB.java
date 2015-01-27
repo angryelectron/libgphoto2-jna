@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-port.h:89</i><br>
@@ -48,10 +51,6 @@ public class GPPortSettingsUSB extends Structure {
 	public byte[] port = new byte[64];
 	public GPPortSettingsUSB() {
 		super();
-		initFieldOrder();
-	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"inep", "outep", "intep", "config", "interface$", "altsetting", "maxpacketsize", "port"});
 	}
 	/**
 	 * @param inep < \brief Bulk IN endpoint used.<br>
@@ -79,12 +78,17 @@ public class GPPortSettingsUSB extends Structure {
 		if (port.length != this.port.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.port = port;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPortSettingsUSB implements Structure.ByReference {
 		
 	};
 	public static class ByValue extends GPPortSettingsUSB implements Structure.ByValue {
 		
-	};
+	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"inep", "outep", "intep", "config", "interface$", "altsetting", "maxpacketsize", "port"});
+  };
+	
 }
