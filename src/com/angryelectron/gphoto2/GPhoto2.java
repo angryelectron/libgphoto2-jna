@@ -287,7 +287,7 @@ public class GPhoto2 {
      */
     public String capture() throws IOException {
         CameraFilePath path = captureImage();
-        return path.name.toString();
+        return new String(path.name);
     }
 
     /**
