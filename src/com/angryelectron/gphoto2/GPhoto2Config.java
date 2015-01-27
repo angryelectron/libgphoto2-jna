@@ -87,10 +87,10 @@ public class GPhoto2Config {
     private CameraWidget getParameterWidget(String param) throws IOException {        
         Pointer name = new Memory(param.length() + 1);
         name.setString(0, param);
-        PointerByReference refChild = new PointerByReference();
-        int rc = gphoto2.gp_widget_get_child_by_name(cameraWidget, name, refChild);
+        CameraWidget[] childs = new CameraWidget[1];
+        int rc = gphoto2.gp_widget_get_child_by_name(cameraWidget, name, childs);
         validateResult("gp_widget_get_child_by_name", rc);
-        return new Gphoto2Library.CameraWidget(refChild.getValue());              
+        return childs[0];   
     }
         
     /**
@@ -185,10 +185,10 @@ public class GPhoto2Config {
      * @throws IOException If the configuration cannot be read.
      */
     public void readConfig() throws IOException {
-        PointerByReference refWidget = new PointerByReference();                        
-        int rc = gphoto2.gp_camera_get_config(camera, refWidget, context);
+        CameraWidget[] camWidg=new CameraWidget[1];
+        int rc = gphoto2.gp_camera_get_config(camera, camWidg, context);
         validateResult("gp_camera_get_config", rc);
-        cameraWidget = new Gphoto2Library.CameraWidget(refWidget.getValue());                        
+        cameraWidget = camWidg[0];                        
     }
     
     /**
