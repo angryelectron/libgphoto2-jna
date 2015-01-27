@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 /**
@@ -72,11 +75,13 @@ public class CameraStorageInformation extends Structure {
 	public NativeLong freeimages;
 	public CameraStorageInformation() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"fields", "basedir", "label", "description", "type", "fstype", "access", "capacitykbytes", "freekbytes", "freeimages"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"fields", "basedir", "label", "description", "type", "fstype", "access", "capacitykbytes", "freekbytes", "freeimages"});
+  };
+
 	public static class ByReference extends CameraStorageInformation implements Structure.ByReference {
 		
 	};

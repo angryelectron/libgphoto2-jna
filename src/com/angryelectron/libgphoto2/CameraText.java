@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-camera.h:1090</i><br>
@@ -31,11 +34,13 @@ public class CameraText extends Structure {
 	public byte[] text = new byte[32 * 1024];
 	public CameraText() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"text"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"text"});
+  };
+
 	/**
 	 * @param text < \brief Character string containing the translated text.<br>
 	 * C type : char[32 * 1024]
@@ -45,7 +50,6 @@ public class CameraText extends Structure {
 		if (text.length != this.text.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.text = text;
-		initFieldOrder();
 	}
 	public static class ByReference extends CameraText implements Structure.ByReference {
 		
