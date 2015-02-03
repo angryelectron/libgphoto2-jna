@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-filesys.h:901</i><br>
@@ -32,10 +35,6 @@ public class CameraFileInfo extends Structure {
 	public CameraFileInfoAudio audio;
 	public CameraFileInfo() {
 		super();
-		initFieldOrder();
-	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"preview", "file", "audio"});
 	}
 	/**
 	 * @param preview C type : CameraFileInfoPreview<br>
@@ -47,12 +46,16 @@ public class CameraFileInfo extends Structure {
 		this.preview = preview;
 		this.file = file;
 		this.audio = audio;
-		initFieldOrder();
 	}
 	public static class ByReference extends CameraFileInfo implements Structure.ByReference {
 		
 	};
 	public static class ByValue extends CameraFileInfo implements Structure.ByValue {
 		
-	};
+	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"preview", "file", "audio"});
+  };
 }

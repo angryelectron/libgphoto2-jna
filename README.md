@@ -6,6 +6,8 @@ library that by no means implements all of libgphoto2 features.
 
 Build
 ---
+Get the source or pre-built binaries at https://github.com/angryelectron/libgphoto2-jna.
+
 To build this library you will need the Java 7 SDK and Apache Ant.  Run 'ant' to 
 build ./dist/libgphoto2-jna.jar and ./dist/javadoc.  To run tests, attach a camera and run
 'ant test'.

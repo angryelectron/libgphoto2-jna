@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-port.h:101</i><br>
@@ -31,11 +34,13 @@ public class GPPortSettingsUsbScsi extends Structure {
 	public byte[] path = new byte[128];
 	public GPPortSettingsUsbScsi() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"path"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"path"});
+  };
+
 	/**
 	 * @param path < /brief The ports device node path (/dev/sg#)<br>
 	 * C type : char[128]
@@ -45,7 +50,6 @@ public class GPPortSettingsUsbScsi extends Structure {
 		if (path.length != this.path.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.path = path;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPortSettingsUsbScsi implements Structure.ByReference {
 		

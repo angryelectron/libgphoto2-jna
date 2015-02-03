@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-abilities-list.h:675</i><br>
@@ -112,15 +115,16 @@ public class CameraAbilities extends Structure {
 	public int reserved8;
 	public CameraAbilities() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"model", "status", "port", "speed", "operations", "file_operations", "folder_operations", "usb_vendor", "usb_product", "usb_class", "usb_subclass", "usb_protocol", "library", "id", "device_type", "reserved2", "reserved3", "reserved4", "reserved5", "reserved6", "reserved7", "reserved8"});
-	}
+	
 	public static class ByReference extends CameraAbilities implements Structure.ByReference {
 		
 	};
 	public static class ByValue extends CameraAbilities implements Structure.ByValue {
 		
-	};
+	}
+	@Override
+  protected List<String> getFieldOrder() {
+	  return Arrays.asList(new String[]{"model", "status", "port", "speed", "operations", "file_operations", "folder_operations", "usb_vendor", "usb_product", "usb_class", "usb_subclass", "usb_protocol", "library", "id", "device_type", "reserved2", "reserved3", "reserved4", "reserved5", "reserved6", "reserved7", "reserved8"});
+  };
 }

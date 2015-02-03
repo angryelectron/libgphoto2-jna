@@ -91,8 +91,11 @@ public class CamDate {
         try {
             proc = rt.exec(args);
             result = proc.waitFor();
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException ex) {
             Logger.getLogger(CamDate.class.getName()).log(Level.SEVERE, ex.getMessage());
+        }
+        catch (InterruptedException ex) {
+        	Logger.getLogger(CamDate.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         if (result != 0) {
             Logger.getLogger(CamDate.class.getName()).log(Level.SEVERE, "Failed to set system time from camera. (root?)");
