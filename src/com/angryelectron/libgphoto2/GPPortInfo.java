@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-port-info-list.h:29</i><br>
@@ -48,11 +51,13 @@ public class GPPortInfo extends Structure {
 	public byte[] library_filename = new byte[1024];
 	public GPPortInfo() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"type", "name", "path", "library_filename"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"type", "name", "path", "library_filename"});
+  };
+
 	/**
 	 * @param type @see GPPortType<br>
 	 * < \brief The type of this port.<br>
@@ -77,7 +82,6 @@ public class GPPortInfo extends Structure {
 		if (library_filename.length != this.library_filename.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.library_filename = library_filename;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPortInfo implements Structure.ByReference {
 		

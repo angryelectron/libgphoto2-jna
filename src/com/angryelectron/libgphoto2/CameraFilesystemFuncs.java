@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraFilesystemDeleteAllFunc;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraFilesystemDeleteFileFunc;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraFilesystemDirFunc;
@@ -63,11 +66,13 @@ public class CameraFilesystemFuncs extends Structure {
 	public Pointer[] unused = new Pointer[31];
 	public CameraFilesystemFuncs() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"file_list_func", "folder_list_func", "put_file_func", "delete_all_func", "get_info_func", "set_info_func", "make_dir_func", "remove_dir_func", "get_file_func", "del_file_func", "storage_info_func", "unused"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"file_list_func", "folder_list_func", "put_file_func", "delete_all_func", "get_info_func", "set_info_func", "make_dir_func", "remove_dir_func", "get_file_func", "del_file_func", "storage_info_func", "unused"});
+  };
+
 	public static class ByReference extends CameraFilesystemFuncs implements Structure.ByReference {
 		
 	};

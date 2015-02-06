@@ -176,7 +176,7 @@ public class GPhoto2 {
         /*
          * Convert the Cameras List into a list of Camera objects
          */
-        List<Camera> cList = new ArrayList<>();
+        List<Camera> cList = new ArrayList<Camera>();
         int size = gphoto2.gp_list_count(cameraList);
         String[] model = new String[1];
         String[] port = new String[1];
@@ -484,16 +484,16 @@ public class GPhoto2 {
      * @throws IOException on error
      */
     private ArrayList<File> saveImages(CameraFilePath path, Boolean delete) throws IOException {
-        ArrayList<File> fileList = new ArrayList<>();
+        ArrayList<File> fileList = new ArrayList<File>();
         String folder = new String(path.folder);
 
         /* get a list of files */
-        PointerByReference ref = new PointerByReference();
-        int rc = gphoto2.gp_list_new(ref);
+        CameraList[] camList = new CameraList[1];
+        int rc = gphoto2.gp_list_new(camList);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_list_new failed with code " + rc);
         }
-        CameraList cameraList = new CameraList(ref.getValue());
+        CameraList cameraList = camList[0];
         rc = gphoto2.gp_camera_folder_list_files(camera, folder, cameraList, context);
         if (rc != Gphoto2Library.GP_OK) {
             throw new IOException("gp_camera_folder_list_files failed with code " + rc);
@@ -502,11 +502,12 @@ public class GPhoto2 {
         /* iterate through list, downloading each item */
         int gp_list_count = gphoto2.gp_list_count(cameraList);
         for (int i = 0; i < gp_list_count; i++) {
-            rc = gphoto2.gp_list_get_name(cameraList, i, ref);
+        	String[] names=new String[1];
+            rc = gphoto2.gp_list_get_name(cameraList,i,names);
             if (rc != Gphoto2Library.GP_OK) {
                 throw new IOException("gp_list_get_name failed with code " + rc);
             }
-            String name = ref.getValue().getString(0);
+            String name = names[1];
             path.name = name.getBytes();
             fileList.add(saveImage(path, delete));
         }

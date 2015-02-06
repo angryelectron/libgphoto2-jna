@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 /**
@@ -46,10 +49,6 @@ public class CameraFileInfoAudio extends Structure {
 	public byte[] type = new byte[64];
 	public CameraFileInfoAudio() {
 		super();
-		initFieldOrder();
-	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"fields", "status", "size", "type"});
 	}
 	/**
 	 * @param fields @see CameraFileInfoFields<br>
@@ -70,12 +69,17 @@ public class CameraFileInfoAudio extends Structure {
 		if (type.length != this.type.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.type = type;
-		initFieldOrder();
 	}
 	public static class ByReference extends CameraFileInfoAudio implements Structure.ByReference {
 		
 	};
 	public static class ByValue extends CameraFileInfoAudio implements Structure.ByValue {
 		
-	};
+	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  // TODO Auto-generated method stub
+	  return Arrays.asList(new String[]{"fields", "status", "size", "type"});
+  };
 }

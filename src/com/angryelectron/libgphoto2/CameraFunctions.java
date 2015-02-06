@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraAboutFunc;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraCaptureFunc;
 import com.angryelectron.libgphoto2.Gphoto2Library.CameraCapturePreviewFunc;
@@ -132,11 +135,13 @@ public class CameraFunctions extends Structure {
 	public Pointer reserved7;
 	public CameraFunctions() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"pre_func", "post_func", "exit", "get_config", "set_config", "capture", "capture_preview", "summary", "manual", "about", "wait_for_event", "reserved1", "reserved2", "reserved3", "reserved4", "reserved5", "reserved6", "reserved7"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"pre_func", "post_func", "exit", "get_config", "set_config", "capture", "capture_preview", "summary", "manual", "about", "wait_for_event", "reserved1", "reserved2", "reserved3", "reserved4", "reserved5", "reserved6", "reserved7"});
+  };
+
 	public static class ByReference extends CameraFunctions implements Structure.ByReference {
 		
 	};
