@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Structure;
 /**
  * <i>native declaration : /usr/include/gphoto2/gphoto2-camera.h:1100</i><br>
@@ -36,11 +39,13 @@ public class CameraFilePath extends Structure {
 	public byte[] folder = new byte[1024];
 	public CameraFilePath() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"name", "folder"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"name", "folder"});
+  };
+	
 	/**
 	 * @param name < \brief Name of the captured file.<br>
 	 * C type : char[128]<br>
@@ -55,7 +60,6 @@ public class CameraFilePath extends Structure {
 		if (folder.length != this.folder.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.folder = folder;
-		initFieldOrder();
 	}
 	public static class ByReference extends CameraFilePath implements Structure.ByReference {
 		

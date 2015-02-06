@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.angryelectron.libgphoto2.Gphoto2Library.GPPortPrivateCore;
 import com.angryelectron.libgphoto2.Gphoto2Library.GPPortPrivateLibrary;
 import com.sun.jna.Structure;
@@ -57,11 +60,13 @@ public class GPPort extends Structure {
 	public GPPortPrivateCore pc;
 	public GPPort() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"type", "settings", "settings_pending", "timeout", "pl", "pc"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  return Arrays.asList(new String[]{"type", "settings", "settings_pending", "timeout", "pl", "pc"});
+  };
+
 	/**
 	 * @param type For your convenience<br>
 	 * @see GPPortType<br>
@@ -85,7 +90,6 @@ public class GPPort extends Structure {
 		this.timeout = timeout;
 		this.pl = pl;
 		this.pc = pc;
-		initFieldOrder();
 	}
 	public static class ByReference extends GPPort implements Structure.ByReference {
 		

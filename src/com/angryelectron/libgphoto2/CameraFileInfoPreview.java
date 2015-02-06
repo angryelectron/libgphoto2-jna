@@ -16,6 +16,9 @@
  * libphoto2-jna. If not, see <http://www.gnu.org/licenses/>.
  */
 package com.angryelectron.libgphoto2;
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 /**
@@ -50,11 +53,14 @@ public class CameraFileInfoPreview extends Structure {
 	public int height;
 	public CameraFileInfoPreview() {
 		super();
-		initFieldOrder();
 	}
-	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"fields", "status", "size", "type", "width", "height"});
-	}
+	@SuppressWarnings("rawtypes")
+  @Override
+  protected List getFieldOrder() {
+	  // TODO Auto-generated method stub
+	  return Arrays.asList(new String[]{"fields", "status", "size", "type", "width", "height"});
+  };
+
 	/**
 	 * @param fields @see CameraFileInfoFields<br>
 	 * < \brief Bitmask containing the set members.<br>
@@ -78,7 +84,6 @@ public class CameraFileInfoPreview extends Structure {
 		this.type = type;
 		this.width = width;
 		this.height = height;
-		initFieldOrder();
 	}
 	public static class ByReference extends CameraFileInfoPreview implements Structure.ByReference {
 		

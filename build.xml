@@ -107,4 +107,18 @@
         </copy>
     </target>
     
+    <property name="version" value="1.3"/>
+    
+    <target depends="jar,javadoc" name="dist">                
+        <jar compress="${jar.compress}" basedir="${src.dir}" jarfile="${dist.dir}/${application.title}-${version}-sources.jar"/>
+        <jar compress="${jar.compress}" basedir="${test.src.dir}" jarfile="${dist.dir}/${application.title}-${version}-test.jar"/>
+        <jar compress="${jar.compress}" basedir="${dist.javadoc.dir}" jarfile="${dist.dir}/${application.title}-${version}-javadoc.jar"/>
+        <move file="${dist.dir}/${application.title}.jar" tofile="${dist.dir}/${application.title}-${version}.jar" />
+        <delete file="${dist.dir}/README.TXT" />
+        <copy file="README.md" todir="${dist.dir}" />
+        <zip destfile="${application.title}-${version}.zip">
+            <zipfileset dir="${dist.dir}" prefix="${application.title}-${version}" />            
+        </zip>
+    </target>
+    
 </project>
