@@ -1,3 +1,11 @@
+2015-02-06  Andrew Bythell  abythell@ieee.org
+
+        * version 1.3
+        * return valid string filename after capture (efimovkd)
+        * support JNA 4.1 (efimovkd)
+        * removed depreciated functions (efimovkd)
+        * build releases with 'ant dist' 
+
 2014-11-06  Andrew Bythell  abythell@ieee.org
 
 	* version 1.2
